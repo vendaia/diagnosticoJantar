@@ -1100,10 +1100,9 @@ export default function Home() {
 
                         {/* Supporter logos */}
                         <div className="flex flex-col items-center justify-center gap-1.5 mt-4 pt-3 border-t border-zinc-900/60 w-full relative z-10">
-                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Apoio</span>
                           <img
                             src="/LOGOS.png"
-                            alt="Apoio: AEG Media & C6Auto"
+                            alt="AEG Media & C6Auto"
                             className="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-200"
                           />
                         </div>
@@ -1429,10 +1428,9 @@ export default function Home() {
                     {renderRadarChart(250)}
 
                     <div className="flex flex-col items-center justify-center gap-1.5 mt-6 pt-3 border-t border-zinc-900/60 w-full relative z-10">
-                      <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Apoio</span>
                       <img
                         src="/LOGOS.png"
-                        alt="Apoio: AEG Media & C6Auto"
+                        alt=" AEG Media & C6Auto"
                         className="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-200"
                       />
                     </div>
