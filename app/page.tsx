@@ -221,8 +221,22 @@ export default function Home() {
       clearInterval(interval);
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Erro ao conectar com o serviço de IA.");
+        let errorMsg = "Erro ao conectar com o serviço de IA.";
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const err = await res.json();
+            errorMsg = err.error || errorMsg;
+          } catch (_) {}
+        } else {
+          errorMsg = `Erro no servidor (Status ${res.status}). O serviço pode estar temporariamente instável ou em manutenção.`;
+        }
+        throw new Error(errorMsg);
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Resposta inválida do servidor. Tente novamente mais tarde.");
       }
 
       const resData = await res.json();

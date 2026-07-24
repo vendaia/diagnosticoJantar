@@ -1,45 +1,65 @@
-import { NextResponse, after } from "next/server";
+const fs = require('fs');
+const path = require('path');
 
-export const maxDuration = 60; // Evita timeout de 504 no Netlify/Vercel aumentando o limite de execução
+let apiKey = '';
+try {
+  const envContent = fs.readFileSync(path.join(__dirname, '../.env'), 'utf8');
+  const match = envContent.match(/GEMINI_API_KEY\s*=\s*(.*)/);
+  if (match) {
+    apiKey = match[1].trim();
+  }
+} catch (e) {
+  console.log('Error reading .env file:', e.message);
+}
 
-export async function POST(req: Request) {
-  try {
-    const data = await req.json();
-    const apiKey = process.env.GEMINI_API_KEY;
+const data = {
+  nomeLoja: "Loja Teste",
+  nomeResponsavel: "Responsavel Teste",
+  contato: "11999999999",
+  mediaVendas: "15",
+  metaVendas: "30",
+  temIA: "sim",
+  fazTrafego: "sim",
+  investimentoMarketing: "500000",
+  investimentoTrafego: "300000",
+  carrosTrafego: "10",
+  fazPortais: "sim",
+  temPreVendas: "sim",
+  rodaLucratividade: 6,
+  rodaMetas: 7,
+  rodaLeads: 5,
+  rodaMaturidade: 6,
+  rodaTimeVendas: 7,
+  rodaVisitas: 5,
+  rodaResultado: 6,
+  rodaIndependencia: 5,
+  rodaIA: 4,
+  rodaSatisfacao: 8,
+  rodaProcessoCompra: 7
+};
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "A chave API do Gemini (GEMINI_API_KEY) não está configurada no servidor." },
-        { status: 500 }
-      );
-    }
+const mediaVendas = 15;
+const metaVendas = 30;
+const gapVendas = 15;
+const totalMarketing = 5000;
+const trafegoInvest = 3000;
+const carrosTrafego = 10;
+const cac = "300.00";
+const eficienciaTrafego = "67";
+const rodaLucratividade = 6;
+const rodaMetas = 7;
+const rodaLeads = 5;
+const rodaMaturidade = 6;
+const rodaTimeVendas = 7;
+const rodaVisitas = 5;
+const rodaResultado = 6;
+const rodaIndependencia = 5;
+const rodaIA = 4;
+const rodaSatisfacao = 8;
+const rodaProcessoCompra = 7;
 
-    // Calcular CAC e métricas adicionais para auxiliar a IA na análise
-    const mediaVendas = parseInt(data.mediaVendas) || 0;
-    const metaVendas = parseInt(data.metaVendas) || 0;
-    const gapVendas = Math.max(0, metaVendas - mediaVendas);
-    const totalMarketing = parseFloat(String(data.investimentoMarketing || "").replace(/\D/g, "")) / 100 || 0;
-    const trafegoInvest = data.fazTrafego === "sim" 
-      ? parseFloat(String(data.investimentoTrafego || "").replace(/\D/g, "")) / 100 || 0 
-      : 0;
-    const carrosTrafego = data.fazTrafego === "sim" ? parseInt(data.carrosTrafego) || 0 : 0;
-    const cac = carrosTrafego > 0 ? (trafegoInvest / carrosTrafego).toFixed(2) : "N/A";
-    const eficienciaTrafego = mediaVendas > 0 ? ((carrosTrafego / mediaVendas) * 100).toFixed(0) : "0";
-    // Notas da autoavaliação da Roda de Diagnóstico Nova Era
-    const rodaLucratividade = data.rodaLucratividade || 5;
-    const rodaMetas = data.rodaMetas || 5;
-    const rodaLeads = data.rodaLeads || 5;
-    const rodaMaturidade = data.rodaMaturidade || 5;
-    const rodaTimeVendas = data.rodaTimeVendas || 5;
-    const rodaVisitas = data.rodaVisitas || 5;
-    const rodaResultado = data.rodaResultado || 5;
-    const rodaIndependencia = data.rodaIndependencia || 5;
-    const rodaIA = data.rodaIA || 5;
-    const rodaSatisfacao = data.rodaSatisfacao || 5;
-    const rodaProcessoCompra = data.rodaProcessoCompra || 5;
-
-    // Criar o prompt detalhado incorporando as respostas do formulário e as diretrizes do usuário
-    const prompt = `
+function getPrompt(concise) {
+  return `
 Você é um consultor estratégico especialista no mercado automotivo (concessionárias e lojas de veículos multimarcas). Seu objetivo é analisar os dados de um cliente e fornecer um plano de ação estratégico altamente personalizado em formato markdown.
 
 DADOS DA CONCESSIONÁRIA ANALISADA:
@@ -117,25 +137,36 @@ DIRETRIZES E REGRAS DE ESTRATÉGIA (Use estes princípios para fundamentar suas 
    - Solicitar avaliação no Google Meu Negócio em toda compra.
 
 10. **Processo de Compra (Captação de Estoque)**:
-    - Postar nas redes sociais: "VENDO SEU CARRO EM 30 MIN".
-    - Estampar na fachada da loja que "COMPRA E PAGA À VISTA".
-    - Implantar funil de captação de compra via tráfego pago.
+     - Postar nas redes sociais: "VENDO SEU CARRO EM 30 MIN".
+     - Estampar na fachada da loja que "COMPRA E PAGA À VISTA".
+     - Implantar funil de captação de compra via tráfego pago.
 
 11. **Lucratividade**:
-    - Calcular a real margem bruta por carro.
-    - Separar estritamente o CPF (finanças do dono) e o CNPJ (finanças da empresa).
-    - Cortar qualquer despesa que não traga retorno direto.
-    - Aumentar o preço médio dos carros e buscar maior retorno de financiamento junto aos bancos/financeiras.
+     - Calcular a real margem bruta por carro.
+     - Separar estritamente o CPF (finanças do dono) e o CNPJ (finanças da empresa).
+     - Cortar qualquer despesa que não traga retorno direto.
+     - Aumentar o preço médio dos carros e buscar maior retorno de financiamento junto aos bancos/financeiras.
 
 SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
-1. Comece com uma introdução de no máximo 2 sentenças parabenizando a ${data.nomeLoja} por dar esse passo estratégico de autoavaliação e diagnóstico.
+1. Comece com uma introdução marcante parabenizando a ${data.nomeLoja} por dar esse passo estratégico de autoavaliação e diagnóstico.
 2. Identifique os **5 pontos (áreas de foco/prioridade) mais críticos** para esta loja de veículos. Escolha estes 5 pontos com base nas **menores notas da Roda de Autoavaliação** (pontuações mais baixas) e que possuam forte impacto no gap comercial da loja. Ao introduzir cada ponto no relatório, inclua a nota da autoavaliação correspondente, por exemplo: '**Metas Claras e Definidas (Autoavaliação: X/10)**'.
-3. Para cada um dos **5 pontos selecionados**, apresente **de 2 a 3 ações práticas e específicas**, integrando diretamente e citando as diretrizes de estratégia correspondentes listadas acima. Cada ação deve ser escrita de forma extremamente objetiva, curta e em tópicos (bullet points), sem parágrafos extensos.
-4. Conclua com um plano rápido de "Próximos Passos Comerciais" no formato de cronograma de implantação rápida de 4 semanas.
-5. REGRA CRÍTICA DE DESEMPENHO: O relatório inteiro deve ser conciso e focado, contendo entre 400 e 600 palavras no total, para garantir geração ultra rápida pela IA.
-`;
+3. Para cada um dos **5 pontos selecionados**, apresente **de 2 a 3 ações práticas e específicas**, integrando diretamente e citando as diretrizes de estratégia correspondentes listadas acima. Personalize as ações para o contexto atual de vendas e marketing informado pela loja.
+4. Conclua com um plano rápido de "Próximos Passos Comerciais" no formato de cronograma de implantação rápida.
 
-    // Chamada REST à API do Gemini
+${concise ? `REGRA DE CONCISÃO OBRIGATÓRIA (CRÍTICA):
+- O plano deve ser extremamente prático, direto e focado em ações concretas.
+- Seja breve na introdução e conclusão (máximo de 2-3 frases).
+- Descreva cada ação prática de forma resumida e direta usando tópicos curtos (bullet points), sem parágrafos longos ou enrolação.
+- O texto total gerado deve ser curto (menos de 600 palavras) para garantir carregamento instantâneo.
+` : ''}
+`;
+}
+
+async function test(concise) {
+  const label = concise ? "CONCISE PROMPT" : "ORIGINAL PROMPT";
+  console.log(`\n--- Testando Gemini API com ${label} ---`);
+  const startGemini = Date.now();
+  try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
@@ -144,79 +175,24 @@ SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
+          contents: [{ parts: [{ text: getPrompt(concise) }] }],
         }),
       }
     );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Erro na API do Gemini:", errorData);
-      return NextResponse.json(
-        { error: "Erro ao comunicar com a API do Gemini. Detalhes: " + (errorData.error?.message || response.statusText) },
-        { status: 502 }
-      );
-    }
-
     const resData = await response.json();
-    const generatedText = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!generatedText) {
-      return NextResponse.json(
-        { error: "Nenhum conteúdo retornado pela IA do Gemini." },
-        { status: 500 }
-      );
-    }
-
-    // Agendar o envio dos dados para o Webhook do n8n em segundo plano após o retorno da resposta ao usuário
-    after(async () => {
-      const webhookUrl = "https://n8n.aegmedia.com.br/webhook/c1d2aa19-2b46-4a31-b16f-d7c64eee11d1";
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 segundos de limite para o webhook em background
-
-        await fetch(webhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            formData: data,
-            metrics: {
-              mediaVendas,
-              metaVendas,
-              gapVendas,
-              totalMarketing,
-              trafegoInvest,
-              carrosTrafego,
-              cac,
-              eficienciaTrafego,
-            },
-            report: generatedText,
-          }),
-        });
-        clearTimeout(timeoutId);
-        console.log("Dados do diagnóstico enviados com sucesso para o webhook do n8n.");
-      } catch (webhookError: any) {
-        console.error("Erro ao enviar dados para o webhook do n8n:", webhookError.name === 'AbortError' ? 'Timeout' : webhookError.message);
-      }
-    });
-
-    return NextResponse.json({ report: generatedText });
-  } catch (error: any) {
-    console.error("Erro interno na rota do diagnóstico:", error);
-    return NextResponse.json(
-      { error: "Erro interno no servidor: " + error.message },
-      { status: 500 }
-    );
+    const timeTaken = Date.now() - startGemini;
+    console.log(`${label} Status:`, response.status);
+    console.log(`${label} Time:`, timeTaken, 'ms');
+    const text = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    console.log(`${label} Length:`, text.length, 'characters (~', Math.round(text.length / 4), 'words)');
+    console.log(`${label} Snippet:`, text.substring(0, 300) + "...");
+  } catch (err) {
+    console.error('Gemini Error:', err);
   }
 }
+
+async function run() {
+  await test(true);
+}
+
+run();
