@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const maxDuration = 60; // Evita timeout de 504 no Netlify/Vercel aumentando o limite de execução
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -173,14 +175,18 @@ SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
       );
     }
 
-    // Disparar o envio para o Webhook do n8n
+    // Disparar o envio para o Webhook do n8n com timeout curto para não atrasar a resposta ao usuário
     const webhookUrl = "https://n8n.aegmedia.com.br/webhook/c1d2aa19-2b46-4a31-b16f-d7c64eee11d1";
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 segundos de limite para o webhook
+
       await fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           formData: data,
           metrics: {
@@ -196,8 +202,9 @@ SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
           report: generatedText,
         }),
       });
-    } catch (webhookError) {
-      console.error("Erro ao enviar dados para o webhook do n8n:", webhookError);
+      clearTimeout(timeoutId);
+    } catch (webhookError: any) {
+      console.error("Erro ao enviar dados para o webhook do n8n:", webhookError.name === 'AbortError' ? 'Timeout' : webhookError.message);
     }
 
     return NextResponse.json({ report: generatedText });
