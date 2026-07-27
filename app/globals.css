@@ -166,7 +166,7 @@ body {
     color: #0f172a !important; /* slate-900 */
   }
   
-  p, span, li, div, td, th, .text-zinc-100, .text-zinc-300, .text-zinc-400 {
+  p, span, li, div, td, th, .text-zinc-100, .text-zinc-200, .text-zinc-300, .text-zinc-400, .text-zinc-500 {
     color: #334155 !important; /* slate-700 */
   }
 
@@ -187,17 +187,43 @@ body {
     color: #d97706 !important; /* solid amber-600 */
   }
 
-  /* Specific backgrounds mapping for highlights */
-  .bg-indigo-500\/10, .bg-indigo-600\/20, .bg-indigo-950\/80 {
-    background-color: #f1f5f9 !important; /* slate-100 */
-    background: #f1f5f9 !important;
-    border-color: #cbd5e1 !important; /* slate-300 */
+  /* Specific backgrounds mapping for highlights & dark panels */
+  .bg-indigo-500\/10, .bg-indigo-600\/20, .bg-indigo-950\/80,
+  .bg-emerald-500\/10, .bg-emerald-950\/80, .bg-amber-950\/80,
+  .bg-red-500\/10, .bg-orange-500\/10, .bg-yellow-500\/10, .bg-blue-500\/10,
+  div[class*="bg-zinc-900"],
+  div[class*="bg-zinc-950"],
+  div[class*="bg-black"] {
+    background-color: #f8fafc !important; /* slate-50 background */
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important; /* slate-200 border */
   }
 
-  .bg-emerald-500\/10, .bg-emerald-950\/80 {
+  /* Specific color adjustments for status badges and icons */
+  .border-red-500\/30, .border-red-500\/20 {
+    border-color: #fca5a5 !important; /* red-300 */
+    background-color: #fee2e2 !important; /* red-100 */
+    background: #fee2e2 !important;
+  }
+  .border-orange-500\/30, .border-orange-500\/20 {
+    border-color: #fed7aa !important; /* orange-300 */
+    background-color: #fff7ed !important; /* orange-50 */
+    background: #fff7ed !important;
+  }
+  .border-yellow-500\/30, .border-yellow-500\/20 {
+    border-color: #fef08a !important; /* yellow-300 */
+    background-color: #fefce8 !important; /* yellow-50 */
+    background: #fefce8 !important;
+  }
+  .border-blue-500\/30, .border-blue-500\/20 {
+    border-color: #bfdbfe !important; /* blue-300 */
+    background-color: #eff6ff !important; /* blue-50 */
+    background: #eff6ff !important;
+  }
+  .border-emerald-500\/30, .border-emerald-500\/20 {
+    border-color: #bbf7d0 !important; /* emerald-300 */
     background-color: #f0fdf4 !important; /* emerald-50 */
     background: #f0fdf4 !important;
-    border-color: #bbf7d0 !important; /* emerald-200 */
   }
 
   .bg-zinc-900 {
