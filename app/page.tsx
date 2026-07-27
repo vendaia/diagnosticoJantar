@@ -628,7 +628,7 @@ export default function Home() {
   const renderRadarChart = (size = 300, interactive = false) => {
     const cx = size / 2;
     const cy = size / 2;
-    const R = size * 0.38;
+    const R = size * 0.31;
 
     const coordinates = eixos.map((eixo, i) => {
       const angle = (i * 360) / 11 - 90;
@@ -739,7 +739,7 @@ export default function Home() {
 
         {/* Outer labels & glowing score points */}
         {coordinates.map((c, i) => {
-          const labelDist = R + 18;
+          const labelDist = R + 12;
           const lx = cx + labelDist * Math.cos(c.rad);
           const ly = cy + labelDist * Math.sin(c.rad);
 
@@ -822,7 +822,7 @@ export default function Home() {
       </header>
 
       <main className="relative z-10 flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-5xl mx-auto">
           {isLoadingAI ? (
             <div className="glass-panel animate-fade-in rounded-3xl p-8 sm:p-16 shadow-2xl shadow-black/80 flex flex-col items-center justify-center text-center space-y-8">
               <div className="relative flex items-center justify-center">
@@ -1243,7 +1243,7 @@ export default function Home() {
                       </div>
 
                       {/* Right Column: Static SVG Radar Box */}
-                      <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl relative overflow-hidden min-h-[440px]">
+                      <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl relative min-h-[440px]">
                         {/* Glow blur background */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[280px] w-[280px] rounded-full bg-indigo-500/5 blur-3xl"></div>
 
@@ -1663,7 +1663,7 @@ export default function Home() {
                   </div>
 
                   {/* Right Column: Roda do Diagnóstico visual recap */}
-                  <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl relative overflow-hidden min-h-[380px] lg:col-span-1">
+                  <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl relative min-h-[380px] lg:col-span-1">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[260px] w-[260px] rounded-full bg-indigo-500/5 blur-xl"></div>
 
                     <div className="text-center mb-4 relative z-10">
