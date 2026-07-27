@@ -237,9 +237,10 @@ body {
     background: #4f46e5 !important;
   }
 
-  /* Invert white logos so they show up as dark on white page */
+  /* Invert white logos so they show up as dark on white page, keeping orange brand colors */
   img {
-    filter: invert(1) !important;
+    filter: invert(1) hue-rotate(180deg) !important;
+    mix-blend-mode: multiply !important;
   }
 
   /* Remove flex centering and screen height bounds */
