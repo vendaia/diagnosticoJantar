@@ -128,15 +128,53 @@ body {
     display: block !important;
   }
 
-  /* Reset height and flex container behaviors for printing */
+  /* Reset height and flex container behaviors for printing - force white background */
   html, body, #__next, [data-reactroot] {
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
-    background-color: #09090b !important;
-    color: #f4f4f5 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #18181b !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Text color overrides for high contrast on white paper */
+  h1, h2, h3, h4, h5, h6, strong, b, .text-white {
+    color: #09090b !important;
+  }
+  
+  p, span, li, div, td, th, .text-zinc-100, .text-zinc-300, .text-zinc-400 {
+    color: #27272a !important;
+  }
+
+  /* Specific color adjustments for print readability */
+  .text-indigo-400, .text-indigo-300, .text-violet-400 {
+    color: #4f46e5 !important;
+  }
+
+  .text-emerald-400, .text-emerald-500 {
+    color: #15803d !important;
+  }
+
+  .text-red-400, .text-red-500 {
+    color: #b91c1c !important;
+  }
+
+  .text-amber-400, .text-amber-500 {
+    color: #b45309 !important;
+  }
+
+  .bg-indigo-500\/10, .bg-indigo-600\/20 {
+    background-color: #f0fdf4 !important;
+    background: #e0e7ff !important;
+    border-color: #c7d2fe !important;
+  }
+
+  .bg-emerald-500\/10, .bg-emerald-950\/80 {
+    background-color: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
   }
 
   /* Remove flex centering and screen height bounds */
@@ -146,6 +184,7 @@ body {
     min-height: 0 !important;
     height: auto !important;
     display: block !important;
+    background: #ffffff !important;
   }
 
   main {
@@ -154,6 +193,7 @@ body {
     min-height: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+    background: #ffffff !important;
   }
 
   /* Remove width caps so content scales to full printable width */
@@ -172,19 +212,37 @@ body {
     width: 100% !important;
   }
 
-  /* Card spacing and print page split optimization */
+  /* Card spacing and print page split optimization - clean light boxes */
   .glass-panel {
     page-break-inside: avoid;
     margin-bottom: 2rem !important;
-    background-color: #09090b !important;
-    border: 1px solid #27272a !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e4e4e7 !important;
     box-shadow: none !important;
+    color: #18181b !important;
   }
 
   /* Keep radar visual intact but page-break clean */
   .min-h-\[380px\], .min-h-\[440px\] {
     min-height: 0 !important;
     height: auto !important;
+  }
+
+  /* Radar SVG elements override for light background */
+  svg line {
+    stroke: rgba(0, 0, 0, 0.15) !important;
+  }
+  svg circle {
+    stroke: rgba(0, 0, 0, 0.08) !important;
+  }
+  svg text {
+    fill: #18181b !important;
+  }
+  svg polygon {
+    fill: rgba(99, 102, 241, 0.12) !important;
+    stroke: #4f46e5 !important;
+    stroke-width: 2px !important;
   }
 }
 
