@@ -806,7 +806,7 @@ export default function Home() {
       <div className="absolute top-[-10%] left-[-10%] h-[600px] w-[600px] rounded-full bg-violet-900/20 glow-blur"></div>
       <div className="absolute bottom-[-10%] right-[-10%] h-[600px] w-[600px] rounded-full bg-indigo-900/20 glow-blur"></div>
 
-      <header className="relative z-10 w-full px-6 py-6 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md">
+      <header className="relative z-10 w-full px-6 py-6 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md no-print">
         <div className="mx-auto max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
@@ -1417,7 +1417,7 @@ export default function Home() {
               </div>
 
               {/* Tab Selector */}
-              <div className="flex border-b border-zinc-800 bg-zinc-900/10 rounded-t-xl overflow-hidden">
+              <div className="flex border-b border-zinc-800 bg-zinc-900/10 rounded-t-xl overflow-hidden no-print">
                 <button
                   type="button"
                   onClick={() => setActiveTab("ai")}
@@ -1451,7 +1451,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={handleCopyReport}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-xs font-bold text-zinc-300 hover:text-white hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all cursor-pointer"
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 text-xs font-bold text-zinc-300 hover:text-white hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all cursor-pointer no-print"
                     >
                       {copied ? (
                         <>
@@ -1475,32 +1475,17 @@ export default function Home() {
                   </div>
 
                   {/* Dashboard Actions */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80">
-                    <a
-                      href={buildImplementationWhatsappLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center"
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80 no-print">
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center cursor-pointer"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                       </svg>
-                      Agendar Implementação (IA+SDR)
-                    </a>
-
-                    <a
-                      href={buildWhatsappShareLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/10 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200"
-                    >
-                      <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742a3 3 0 11-2.2-2.2l1.393 2.2z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.275 14.333a3.3 3.3 0 11-2.2-2.2l1.393 2.2z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.866 17.925a3.6 3.6 0 11-2.2-2.2l1.393 2.2zm1-5.183a3 3 0 10-3-3 3 3 0 003 3zm-6 6a3 3 0 10-3-3 3 3 0 003 3z" />
-                      </svg>
-                      Compartilhar Diagnóstico
-                    </a>
+                      Gerar PDF
+                    </button>
 
                     <button
                       type="button"
@@ -1698,32 +1683,17 @@ export default function Home() {
                   </div>
 
                   {/* Actions under columns */}
-                  <div className="lg:col-span-3 flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80">
-                    <a
-                      href={buildImplementationWhatsappLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center"
+                  <div className="lg:col-span-3 flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80 no-print">
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center cursor-pointer"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                       </svg>
-                      Agendar Implementação (IA+SDR)
-                    </a>
-
-                    <a
-                      href={buildWhatsappShareLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/10 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200"
-                    >
-                      <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742a3 3 0 11-2.2-2.2l1.393 2.2z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.275 14.333a3.3 3.3 0 11-2.2-2.2l1.393 2.2z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.866 17.925a3.6 3.6 0 11-2.2-2.2l1.393 2.2zm1-5.183a3 3 0 10-3-3 3 3 0 003 3zm-6 6a3 3 0 10-3-3 3 3 0 003 3z" />
-                      </svg>
-                      Compartilhar Diagnóstico
-                    </a>
+                      Gerar PDF
+                    </button>
 
                     <button
                       type="button"
