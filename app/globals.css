@@ -121,6 +121,12 @@ body {
   .no-print {
     display: none !important;
   }
+  .print-force-show {
+    display: block !important;
+  }
+  .print-force-grid {
+    display: grid !important;
+  }
 }
 
 

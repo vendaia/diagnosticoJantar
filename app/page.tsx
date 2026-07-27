@@ -1441,8 +1441,7 @@ export default function Home() {
               </div>
 
               {/* TAB 1: AI PLAN OF ACTION */}
-              {activeTab === "ai" && (
-                <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black/80 space-y-6 animate-fade-in">
+              <div className={`glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black/80 space-y-6 animate-fade-in ${activeTab === "ai" ? "block" : "hidden print-force-show"}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-4">
                     <div>
                       <h2 className="text-xl font-bold text-white tracking-tight">Plano de Ação Estratégico IA</h2>
@@ -1502,11 +1501,9 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              )}
 
               {/* TAB 2: METRICS & TRADITIONAL RECOMMENDATIONS */}
-              {activeTab === "metrics" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-fade-in">
+              <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-fade-in ${activeTab === "metrics" ? "block" : "hidden print-force-grid"}`}>
 
                   {/* Left Column: Metrics & Recommendations */}
                   <div className="lg:col-span-2 space-y-8">
@@ -1710,7 +1707,6 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-              )}
             </div>
           )}
         </div>
