@@ -25,6 +25,21 @@ export async function POST(req: Request) {
     const carrosTrafego = data.fazTrafego === "sim" ? parseInt(data.carrosTrafego) || 0 : 0;
     const cac = carrosTrafego > 0 ? (trafegoInvest / carrosTrafego).toFixed(2) : "N/A";
     const eficienciaTrafego = mediaVendas > 0 ? ((carrosTrafego / mediaVendas) * 100).toFixed(0) : "0";
+
+    // Novos campos de funil e lucro por carro
+    const lucroPorCarro = parseFloat(String(data.lucroPorCarro || "").replace(/\D/g, "")) / 100 || 0;
+    const leadsMes = parseInt(data.leadsMes) || 0;
+    const visitasMes = parseInt(data.visitasMes) || 0;
+
+    // Calcular perda financeira decorrente do GAP comercial
+    const lostRevenueMonth = gapVendas * lucroPorCarro;
+    const lostRevenueYear = lostRevenueMonth * 12;
+
+    // Calcular conversões reais do funil
+    const convLeadVisita = leadsMes > 0 ? (visitasMes / leadsMes) * 100 : 0;
+    const convVisitaVenda = visitasMes > 0 ? (mediaVendas / visitasMes) * 100 : 0;
+    const convGeral = leadsMes > 0 ? (mediaVendas / leadsMes) * 100 : 0;
+
     // Notas da autoavaliação da Roda de Diagnóstico Nova Era
     const rodaLucratividade = data.rodaLucratividade || 5;
     const rodaMetas = data.rodaMetas || 5;
@@ -49,6 +64,14 @@ DADOS DA CONCESSIONÁRIA ANALISADA:
 - Vendas Médias Atuais: ${mediaVendas} veículos/mês
 - Meta de Vendas Desejada: ${metaVendas} veículos/mês
 - Distância Comercial (Gap de Vendas): +${gapVendas} veículos/mês
+- Lucro Médio por Carro (Margem): R$ ${lucroPorCarro.toFixed(2)}
+- Perda Financeira Estimada pelo Gap: R$ ${lostRevenueMonth.toFixed(2)}/mês (R$ ${lostRevenueYear.toFixed(2)}/ano)
+- Quantidade de Leads por Mês: ${leadsMes}
+- Quantidade de Visitas Físicas por Mês: ${visitasMes}
+- Taxas de Conversão Reais da Loja:
+  * Conversão Lead para Visita: ${convLeadVisita.toFixed(1)}% (Leads: ${leadsMes} -> Visitas: ${visitasMes})
+  * Conversão Visita para Venda: ${convVisitaVenda.toFixed(1)}% (Visitas: ${visitasMes} -> Vendas: ${mediaVendas})
+  * Conversão Geral (Lead para Venda): ${convGeral.toFixed(1)}%
 - Utiliza Inteligência Artificial (IA) no atendimento? ${data.temIA === "sim" ? "SIM" : "NÃO"}
 - Faz tráfego pago próprio (Meta/Google Ads)? ${data.fazTrafego === "sim" ? "SIM" : "NÃO"}
 ${data.fazTrafego === "sim" ? `  * Investimento mensal em tráfego: R$ ${trafegoInvest.toFixed(2)}\n  * Veículos vendidos pelo tráfego rastreado: ${carrosTrafego}\n  * Custo de Aquisição por Veículo (CAC): R$ ${cac}\n  * Participação do tráfego nas vendas: ${eficienciaTrafego}%` : ""}
@@ -127,12 +150,14 @@ DIRETRIZES E REGRAS DE ESTRATÉGIA (Use estes princípios para fundamentar suas 
     - Cortar qualquer despesa que não traga retorno direto.
     - Aumentar o preço médio dos carros e buscar maior retorno de financiamento junto aos bancos/financeiras.
 
-SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
+SUAS INSTRUÇÕES DE FORMATAÇÃO, CONSISTÊNCIA E CONTEÚDO:
 1. Comece com uma introdução de no máximo 2 sentenças parabenizando a ${data.nomeLoja} por dar esse passo estratégico de autoavaliação e diagnóstico.
-2. Identifique os **5 pontos (áreas de foco/prioridade) mais críticos** para esta loja de veículos. Escolha estes 5 pontos com base nas **menores notas da Roda de Autoavaliação** (pontuações mais baixas) e que possuam forte impacto no gap comercial da loja. Ao introduzir cada ponto no relatório, inclua a nota da autoavaliação correspondente, por exemplo: '**Metas Claras e Definidas (Autoavaliação: X/10)**'.
-3. Para cada um dos **5 pontos selecionados**, apresente **de 2 a 3 ações práticas e específicas**, integrando diretamente e citando as diretrizes de estratégia correspondentes listadas acima. Cada ação deve ser escrita de forma extremamente objetiva, curta e em tópicos (bullet points), sem parágrafos extensos.
-4. Conclua com um plano rápido de "Próximos Passos Comerciais" no formato de cronograma de implantação rápida de 4 semanas.
-5. REGRA CRÍTICA DE DESEMPENHO: O relatório inteiro deve ser conciso e focado, contendo entre 400 e 600 palavras no total, para garantir geração ultra rápida pela IA.
+2. **REGRA CRÍTICA DE CONSISTÊNCIA DE DADOS**: Você NUNCA deve parabenizar a loja ou dizer "Excelente!" ou "Parabéns!" pelo uso de IA, SDR, Tráfego Pago ou Portais se no formulário consta que a resposta foi "NÃO". Se responderam NÃO para IA ou SDR, trate isso estritamente como um gargalo crítico a ser corrigido e uma recomendação de ação necessária. Se responderam SIM, você pode reconhecer, mas focando em como melhorar o aproveitamento.
+3. Identifique os **5 pontos (áreas de foco/prioridade) mais críticos** para esta loja de veículos. Escolha estes 5 pontos com base nas **menores notas da Roda de Autoavaliação** (pontuações mais baixas) e que possuam forte impacto no gap comercial da loja. Ao introduzir cada ponto no relatório, inclua a nota da autoavaliação correspondente, por exemplo: '**Metas Claras e Definidas (Autoavaliação: X/10)**'.
+4. Para cada um dos **5 pontos selecionados**, apresente **de 2 a 3 ações práticas e específicas**, integrando diretamente e citando as diretrizes de estratégia correspondentes listadas acima. Cada ação deve ser escrita de forma extremamente objetiva, curta e em tópicos (bullet points), sem parágrafos extensos.
+5. Incorpore a análise de perda financeira (R$ ${lostRevenueMonth.toLocaleString('pt-BR')} / mês ou R$ ${lostRevenueYear.toLocaleString('pt-BR')} / ano) e o vazamento do funil de conversão (exemplo: ${leadsMes} leads gerando apenas ${visitasMes} visitas) nas seções apropriadas de forma a destacar que a loja está deixando muito dinheiro na mesa por falta de processo comercial.
+6. Conclua com um plano rápido de "Próximos Passos Comerciais" no formato de cronograma de implantação rápida de 4 semanas.
+7. REGRA CRÍTICA DE DESEMPENHO: O relatório inteiro deve ser conciso e focado, contendo entre 400 e 600 palavras no total, para garantir geração ultra rápida pela IA.
 `;
 
     // Chamada REST à API do Gemini
@@ -200,6 +225,14 @@ SUAS INSTRUÇÕES DE FORMATAÇÃO E CONTEÚDO:
               carrosTrafego,
               cac,
               eficienciaTrafego,
+              lucroPorCarro,
+              leadsMes,
+              visitasMes,
+              lostRevenueMonth,
+              lostRevenueYear,
+              convLeadVisita,
+              convVisitaVenda,
+              convGeral,
             },
             report: generatedText,
           }),

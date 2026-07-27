@@ -15,6 +15,9 @@ interface FormData {
   investimentoMarketing: string;
   temIA: string; // "sim" | "nao"
   temPreVendas: string; // "sim" | "nao"
+  lucroPorCarro: string;
+  leadsMes: string;
+  visitasMes: string;
   // Roda do Diagnóstico scores (1 to 10)
   rodaLucratividade: number | "";
   rodaMetas: number | "";
@@ -42,6 +45,9 @@ const initialData: FormData = {
   investimentoMarketing: "",
   temIA: "nao",
   temPreVendas: "nao",
+  lucroPorCarro: "",
+  leadsMes: "",
+  visitasMes: "",
   // Roda scores defaults
   rodaLucratividade: 5,
   rodaMetas: 5,
@@ -109,7 +115,7 @@ export default function Home() {
     if (typeof value === "string") {
       if (key === "contato") {
         formattedValue = formatPhone(value);
-      } else if (key === "investimentoTrafego" || key === "investimentoMarketing") {
+      } else if (key === "investimentoTrafego" || key === "investimentoMarketing" || key === "lucroPorCarro") {
         formattedValue = formatCurrency(value);
       }
     }
@@ -155,6 +161,15 @@ export default function Home() {
       }
       if (!formData.metaVendas || parseInt(formData.metaVendas) < 0) {
         stepErrors.metaVendas = "Insira uma meta de vendas válida";
+      }
+      if (!formData.lucroPorCarro) {
+        stepErrors.lucroPorCarro = "Informe a margem média por veículo";
+      }
+      if (!formData.leadsMes || parseInt(formData.leadsMes) < 0) {
+        stepErrors.leadsMes = "Informe os leads por mês";
+      }
+      if (!formData.visitasMes || parseInt(formData.visitasMes) < 0) {
+        stepErrors.visitasMes = "Informe as visitas por mês";
       }
     }
 
@@ -260,6 +275,20 @@ export default function Home() {
   const trafegoInvest = formData.fazTrafego === "sim" ? parseCurrency(formData.investimentoTrafego) : 0;
   const carrosTrafegoNum = formData.fazTrafego === "sim" ? parseInt(formData.carrosTrafego) || 0 : 0;
 
+  // Novos campos de funil e lucro por carro
+  const lucroPorCarroNum = parseCurrency(formData.lucroPorCarro);
+  const leadsMesNum = parseInt(formData.leadsMes) || 0;
+  const visitasMesNum = parseInt(formData.visitasMes) || 0;
+
+  // Calculo de perda financeira pelo GAP de vendas
+  const lostRevenueMonth = gapVendas * lucroPorCarroNum;
+  const lostRevenueYear = lostRevenueMonth * 12;
+
+  // Conversões reais do funil
+  const convLeadVisita = leadsMesNum > 0 ? (visitasMesNum / leadsMesNum) * 100 : 0;
+  const convVisitaVenda = visitasMesNum > 0 ? (mediaVendasNum / visitasMesNum) * 100 : 0;
+  const convGeral = leadsMesNum > 0 ? (mediaVendasNum / leadsMesNum) * 100 : 0;
+
   // Calculo de CAC
   const cacTrafego = carrosTrafegoNum > 0 ? trafegoInvest / carrosTrafegoNum : 0;
 
@@ -269,19 +298,45 @@ export default function Home() {
   // Custo médio de marketing por carro vendido
   const marketingPorCarro = mediaVendasNum > 0 ? totalMarketing / mediaVendasNum : 0;
 
-  // Score de Maturidade Digital
-  let scoreMaturidade = 20;
-  if (formData.temIA === "sim") scoreMaturidade += 20;
-  if (formData.temPreVendas === "sim") scoreMaturidade += 20;
-  if (formData.fazTrafego === "sim") scoreMaturidade += 20;
-  if (formData.fazPortais === "sim") scoreMaturidade += 20;
+  // Score de Maturidade Digital (5 Dimensões)
+  // 1. Atingimento de meta (25 pts)
+  const scoreMeta = Math.min(25, metaVendasNum > 0 ? (mediaVendasNum / metaVendasNum) * 25 : 0);
 
-  // Se tem tráfego e o CAC for saudável ou excelente, ganha um bônus de eficiência digital
+  // 2. Estrutura comercial (IA + SDR) (20 pts)
+  const scoreEstrutura = (formData.temIA === "sim" ? 10 : 0) + (formData.temPreVendas === "sim" ? 10 : 0);
+
+  // 3. Aquisição (tráfego + portais) (20 pts)
+  const scoreAquisicao = (formData.fazTrafego === "sim" ? 10 : 0) + (formData.fazPortais === "sim" ? 10 : 0);
+
+  // 4. Eficiência de investimento (15 pts)
+  let scoreEficiencia = 0;
   if (formData.fazTrafego === "sim" && cacTrafego > 0) {
-    if (cacTrafego < 400) scoreMaturidade += 20;
-    else if (cacTrafego < 900) scoreMaturidade += 10;
+    if (cacTrafego <= 300) scoreEficiencia = 15;
+    else if (cacTrafego <= 600) scoreEficiencia = 12;
+    else if (cacTrafego <= 900) scoreEficiencia = 8;
+    else if (cacTrafego <= 1500) scoreEficiencia = 4;
+    else scoreEficiencia = 0;
   }
-  scoreMaturidade = Math.min(100, scoreMaturidade);
+
+  // 5. Maturidade de gestão (20 pts)
+  const rodaLucratividade = Number(formData.rodaLucratividade) || 5;
+  const rodaMetas = Number(formData.rodaMetas) || 5;
+  const rodaLeads = Number(formData.rodaLeads) || 5;
+  const rodaMaturidade = Number(formData.rodaMaturidade) || 5;
+  const rodaTimeVendas = Number(formData.rodaTimeVendas) || 5;
+  const rodaVisitas = Number(formData.rodaVisitas) || 5;
+  const rodaResultado = Number(formData.rodaResultado) || 5;
+  const rodaIndependencia = Number(formData.rodaIndependencia) || 5;
+  const rodaIA = Number(formData.rodaIA) || 5;
+  const rodaSatisfacao = Number(formData.rodaSatisfacao) || 5;
+  const rodaProcessoCompra = Number(formData.rodaProcessoCompra) || 5;
+
+  const somatorioRadar = rodaLucratividade + rodaMetas + rodaLeads + rodaMaturidade + rodaTimeVendas + 
+                         rodaVisitas + rodaResultado + rodaIndependencia + rodaIA + rodaSatisfacao + rodaProcessoCompra;
+  const scoreGestao = (somatorioRadar / 110) * 20;
+
+  // Score final recalibrado
+  const scoreMaturidade = Math.round(scoreMeta + scoreEstrutura + scoreAquisicao + scoreEficiencia + scoreGestao);
 
   // Recommendations builder
   const getRecommendations = () => {
@@ -370,12 +425,46 @@ export default function Home() {
   };
 
   const getMaturidadeBadge = (score: number) => {
-    if (score < 40) return { label: "Iniciante Digital", color: "bg-red-950/80 text-red-400 border-red-900/50" };
-    if (score < 70) return { label: "Em Evolução", color: "bg-amber-950/80 text-amber-400 border-amber-900/50" };
-    return { label: "Líder Digital", color: "bg-emerald-950/80 text-emerald-400 border-emerald-900/50" };
+    if (score <= 40) return { label: "Crítico", color: "bg-red-950/85 text-red-400 border-red-900/60" };
+    if (score <= 60) return { label: "Reativa (Perdendo Mercado)", color: "bg-amber-950/85 text-amber-400 border-amber-900/60" };
+    if (score <= 80) return { label: "Em Evolução (Deixando Dinheiro na Mesa)", color: "bg-yellow-950/85 text-yellow-400 border-yellow-900/60" };
+    if (score <= 95) return { label: "Avançada", color: "bg-emerald-950/85 text-emerald-400 border-emerald-900/60" };
+    return { label: "Referência (Raríssimo)", color: "bg-indigo-950/85 text-indigo-400 border-indigo-900/60" };
+  };
+
+  const buildImplementationWhatsappLink = () => {
+    const formattedLossMonth = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(lostRevenueMonth);
+    const formattedLossYear = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(lostRevenueYear);
+    const paybackText = lostRevenueMonth >= 12000 
+      ? "menos de 1 semana" 
+      : lostRevenueMonth > 0 
+        ? `${Math.ceil((3000 / lostRevenueMonth) * 4.3)} semanas` 
+        : "1 semana";
+
+    const message = `*SOLICITAÇÃO DE IMPLEMENTAÇÃO - VENDA.IA* 🚀\n` +
+      `---------------------------------\n` +
+      `🏢 *Loja:* ${formData.nomeLoja}\n` +
+      `👤 *Responsável:* ${formData.nomeResponsavel}\n` +
+      `🎯 *Meta de Vendas:* ${formData.metaVendas} carros/mês\n` +
+      `🏆 *Pontuação de Maturidade:* ${scoreMaturidade}/100 (Faixa: ${getMaturidadeBadge(scoreMaturidade).label})\n` +
+      `---------------------------------\n` +
+      `💸 *GAP Comercial em Dinheiro:*\n` +
+      `• *Perda Mensal:* ${formattedLossMonth}\n` +
+      `• *Perda Anual:* ${formattedLossYear}\n` +
+      `---------------------------------\n` +
+      `💼 *Investimento & ROI Projetado:*\n` +
+      `• *Plano Recomendado:* R$ 3.000 / mês\n` +
+      `• *ROI Estimado:* ${lostRevenueMonth > 0 ? (lostRevenueMonth / 3000).toFixed(0) : "20"}x de retorno\n` +
+      `• *Payback do Investimento:* ${paybackText}\n` +
+      `---------------------------------\n` +
+      `Gostaria de agendar a reunião de kick-off para iniciar a implementação da IA no atendimento e SDR nesta semana.`;
+
+    return `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
   };
 
   const buildWhatsappShareLink = () => {
+    const formattedLossMonth = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(lostRevenueMonth);
+    const formattedLossYear = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(lostRevenueYear);
     const message = `*DIAGNÓSTICO AUTOMOTIVO DE MATURIDADE* 🚀\n` +
       `---------------------------------\n` +
       `🏢 *Loja:* ${formData.nomeLoja}\n` +
@@ -384,11 +473,15 @@ export default function Home() {
       `🎯 *Meta de Vendas:* ${formData.metaVendas} carros/mês\n` +
       `🏆 *Pontuação de Maturidade:* ${scoreMaturidade}/100\n` +
       `---------------------------------\n` +
-      `💰 *Métricas Calculadas:*\n` +
-      `• *Investimento Mkt Total:* ${formData.investimentoMarketing}\n` +
-      (formData.fazTrafego === "sim" ? `• *CAC do Tráfego:* R$ ${cacTrafego.toFixed(2)} por carro\n` : `• *Não faz tráfego pago próprio*\n`) +
-      `• *Mkt por Carro Vendido:* R$ ${marketingPorCarro.toFixed(2)}\n` +
-      (gapVendas > 0 ? `• *Distância p/ Meta:* +${gapVendas} carros/mês\n` : `• *Status da Meta:* Meta Atingida! 🎉\n`) +
+      `🚨 *Dinheiro Deixado na Mesa (GAP comercial):*\n` +
+      `• *Perda Mensal:* ${formattedLossMonth}\n` +
+      `• *Perda Anual:* ${formattedLossYear}\n` +
+      `---------------------------------\n` +
+      `📊 *Funil Comercial:*\n` +
+      `• *Leads Recebidos/mês:* ${formData.leadsMes}\n` +
+      `• *Visitas na Loja/mês:* ${formData.visitasMes}\n` +
+      `• *Conversão Lead -> Visita:* ${convLeadVisita.toFixed(1)}% (Ref: 15-20%)\n` +
+      `• *Conversão Visita -> Venda:* ${convVisitaVenda.toFixed(1)}% (Ref: 25-35%)\n` +
       `---------------------------------\n` +
       `🛠️ *Estrutura Atual:*\n` +
       `• IA no Atendimento: ${formData.temIA === "sim" ? "Sim ✅" : "Não ❌"}\n` +
@@ -814,8 +907,8 @@ export default function Home() {
                 {step === 2 && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="text-center sm:text-left">
-                      <h2 className="text-2xl font-bold text-white tracking-tight">Desempenho Comercial</h2>
-                      <p className="text-sm text-zinc-400 mt-1">Insira a quantidade média de carros negociados por mês.</p>
+                      <h2 className="text-2xl font-bold text-white tracking-tight">Desempenho & Funil Comercial</h2>
+                      <p className="text-sm text-zinc-400 mt-1">Insira os volumes de vendas, metas, lucro médio e dados do seu funil.</p>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -855,6 +948,57 @@ export default function Home() {
                           </div>
                         </div>
                         {errors.metaVendas && <p className="text-xs font-semibold text-red-500 mt-1">{errors.metaVendas}</p>}
+                      </div>
+
+                      <div className="space-y-2 sm:col-span-2">
+                        <label className="text-sm font-medium text-zinc-300" htmlFor="lucroPorCarro">Lucro ou Margem Média por Carro (R$)</label>
+                        <input
+                          id="lucroPorCarro"
+                          type="text"
+                          placeholder="Ex: R$ 4.000,00"
+                          value={formData.lucroPorCarro}
+                          onChange={(e) => handleInputChange("lucroPorCarro", e.target.value)}
+                          className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white placeholder-zinc-500 outline-none ring-offset-zinc-950 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+                        />
+                        {errors.lucroPorCarro && <p className="text-xs font-semibold text-red-500 mt-1">{errors.lucroPorCarro}</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-300" htmlFor="leadsMes">Leads recebidos por mês</label>
+                        <div className="relative">
+                          <input
+                            id="leadsMes"
+                            type="number"
+                            min="0"
+                            placeholder="Ex: 200"
+                            value={formData.leadsMes}
+                            onChange={(e) => handleInputChange("leadsMes", e.target.value)}
+                            className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 pl-4 pr-24 py-3 text-white placeholder-zinc-500 outline-none ring-offset-zinc-950 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span className="text-xs font-semibold text-zinc-500 bg-zinc-800/80 px-2 py-1 rounded">leads/mês</span>
+                          </div>
+                        </div>
+                        {errors.leadsMes && <p className="text-xs font-semibold text-red-500 mt-1">{errors.leadsMes}</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-zinc-300" htmlFor="visitasMes">Visitas físicas na loja por mês</label>
+                        <div className="relative">
+                          <input
+                            id="visitasMes"
+                            type="number"
+                            min="0"
+                            placeholder="Ex: 30"
+                            value={formData.visitasMes}
+                            onChange={(e) => handleInputChange("visitasMes", e.target.value)}
+                            className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 pl-4 pr-24 py-3 text-white placeholder-zinc-500 outline-none ring-offset-zinc-950 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all duration-200"
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span className="text-xs font-semibold text-zinc-500 bg-zinc-800/80 px-2 py-1 rounded">visitas/mês</span>
+                          </div>
+                        </div>
+                        {errors.visitasMes && <p className="text-xs font-semibold text-red-500 mt-1">{errors.visitasMes}</p>}
                       </div>
                     </div>
                   </div>
@@ -1190,6 +1334,88 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Seção Financeira de Alto Impacto (A Ferida e Projeções) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* CARD 1: O Prejuízo / Dinheiro na Mesa */}
+                <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-red-500 shadow-lg flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Dinheiro Deixado na Mesa</span>
+                      <span className="text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-red-500/20">Crítico</span>
+                    </div>
+                    <h3 className="text-2xl font-black text-red-400 mt-2">
+                      {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(lostRevenueMonth)} <span className="text-xs font-medium text-zinc-400">/mês</span>
+                    </h3>
+                    <p className="text-sm font-semibold text-zinc-300 mt-1">
+                      ou {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(lostRevenueYear)} <span className="text-xs font-medium text-zinc-400">/ano</span>
+                    </p>
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Sua meta é de <span className="text-white font-semibold">{metaVendasNum}</span> carros, mas você vende <span className="text-white font-semibold">{mediaVendasNum}</span>. Os <span className="text-red-400 font-bold">{gapVendas}</span> carros em falta com margem de {formData.lucroPorCarro} causam essa perda anual.
+                  </p>
+                </div>
+
+                {/* CARD 2: Gargalo no Funil (Vazamento) */}
+                <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-amber-500 shadow-lg flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Eficiência do Funil</span>
+                      <span className="text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-amber-500/20">Vazamento</span>
+                    </div>
+                    
+                    <div className="space-y-2 mt-3">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-zinc-400">Lead → Visita:</span>
+                        <span className={`font-bold ${convLeadVisita < 15 ? 'text-red-400' : 'text-emerald-400'}`}>{convLeadVisita.toFixed(1)}% <span className="text-[10px] text-zinc-500 font-normal">(Benchmark: 15-20%)</span></span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-zinc-400">Visita → Venda:</span>
+                        <span className={`font-bold ${convVisitaVenda < 25 ? 'text-red-400' : 'text-emerald-400'}`}>{convVisitaVenda.toFixed(1)}% <span className="text-[10px] text-zinc-500 font-normal">(Benchmark: 25-35%)</span></span>
+                      </div>
+                      <div className="flex justify-between text-xs border-t border-zinc-900 pt-1.5">
+                        <span className="text-zinc-300 font-medium">Conversão Geral:</span>
+                        <span className={`font-bold ${convGeral < 4 ? 'text-red-400' : 'text-emerald-400'}`}>{convGeral.toFixed(1)}% <span className="text-[10px] text-zinc-500 font-normal">(Benchmark: 4-6%)</span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    De <span className="text-white font-semibold">{leadsMesNum}</span> leads, apenas <span className="text-white font-semibold">{visitasMesNum}</span> viraram visitas físicas. Sua loja está enchendo um balde furado no atendimento inicial.
+                  </p>
+                </div>
+
+                {/* CARD 3: ROI e Projeção Antes/Depois */}
+                <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-indigo-500 shadow-lg flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">ROI da Solução</span>
+                      <span className="text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-indigo-500/20">venda.ia</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-indigo-300 mt-2">
+                      Investimento: R$ 3.000 <span className="text-xs font-medium text-zinc-400">/mês</span>
+                    </h3>
+                    <div className="text-xs font-semibold text-emerald-400 mt-1 flex items-center gap-1">
+                      Retorno de {lostRevenueMonth > 0 ? (lostRevenueMonth / 3000).toFixed(0) : "20"}x ({new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(lostRevenueMonth)} destravados)
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5 pt-2 border-t border-zinc-900">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-zinc-400">Antes:</span>
+                      <span className="text-zinc-300 line-through">{mediaVendasNum} carros</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-bold text-white">
+                      <span>Depois (Com IA+SDR):</span>
+                      <span className="text-emerald-400">{metaVendasNum} carros (+{gapVendas})</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-400 mt-1">
+                      Payback estimado: <span className="text-indigo-300 font-bold">
+                        {lostRevenueMonth >= 12000 ? "menos de 1 semana" : lostRevenueMonth > 0 ? `${Math.ceil((3000 / lostRevenueMonth) * 4.3)} semanas` : "1 semana"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Tab Selector */}
               <div className="flex border-b border-zinc-800 bg-zinc-900/10 rounded-t-xl overflow-hidden">
                 <button
@@ -1250,7 +1476,31 @@ export default function Home() {
 
                   {/* Dashboard Actions */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80">
+                    <a
+                      href={buildImplementationWhatsappLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Agendar Implementação (IA+SDR)
+                    </a>
 
+                    <a
+                      href={buildWhatsappShareLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/10 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200"
+                    >
+                      <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742a3 3 0 11-2.2-2.2l1.393 2.2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.275 14.333a3.3 3.3 0 11-2.2-2.2l1.393 2.2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.866 17.925a3.6 3.6 0 11-2.2-2.2l1.393 2.2zm1-5.183a3 3 0 10-3-3 3 3 0 003 3zm-6 6a3 3 0 10-3-3 3 3 0 003 3z" />
+                      </svg>
+                      Compartilhar Diagnóstico
+                    </a>
 
                     <button
                       type="button"
@@ -1263,9 +1513,6 @@ export default function Home() {
                       }}
                       className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/20 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200 cursor-pointer"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4" />
-                      </svg>
                       Novo Diagnóstico
                     </button>
                   </div>
@@ -1452,6 +1699,32 @@ export default function Home() {
 
                   {/* Actions under columns */}
                   <div className="lg:col-span-3 flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900/80">
+                    <a
+                      href={buildImplementationWhatsappLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-4 px-8 font-bold shadow-xl shadow-indigo-600/10 hover:shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-300 text-center"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Agendar Implementação (IA+SDR)
+                    </a>
+
+                    <a
+                      href={buildWhatsappShareLink()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/10 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200"
+                    >
+                      <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742a3 3 0 11-2.2-2.2l1.393 2.2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12.275 14.333a3.3 3.3 0 11-2.2-2.2l1.393 2.2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.866 17.925a3.6 3.6 0 11-2.2-2.2l1.393 2.2zm1-5.183a3 3 0 10-3-3 3 3 0 003 3zm-6 6a3 3 0 10-3-3 3 3 0 003 3z" />
+                      </svg>
+                      Compartilhar Diagnóstico
+                    </a>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -1463,9 +1736,6 @@ export default function Home() {
                       }}
                       className="flex items-center justify-center gap-2 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/20 text-zinc-300 hover:text-white py-4 px-6 font-bold hover:scale-[1.02] active:scale-[0.96] active:translate-y-[0.5px] transition-all duration-200 cursor-pointer"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4" />
-                      </svg>
                       Novo Diagnóstico
                     </button>
                   </div>
