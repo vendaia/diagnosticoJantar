@@ -125,7 +125,66 @@ body {
     display: block !important;
   }
   .print-force-grid {
-    display: grid !important;
+    display: block !important;
+  }
+
+  /* Reset height and flex container behaviors for printing */
+  html, body, #__next, [data-reactroot] {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background-color: #09090b !important;
+    color: #f4f4f5 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove flex centering and screen height bounds */
+  .min-h-screen, 
+  div[class*="min-h-screen"],
+  body > div {
+    min-height: 0 !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  main {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove width caps so content scales to full printable width */
+  .max-w-5xl, .max-w-4xl, .w-full {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Prevent columns squeezing - stack all cards vertically for clear reading */
+  .grid {
+    display: block !important;
+  }
+
+  .grid > * {
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+  }
+
+  /* Card spacing and print page split optimization */
+  .glass-panel {
+    page-break-inside: avoid;
+    margin-bottom: 2rem !important;
+    background-color: #09090b !important;
+    border: 1px solid #27272a !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep radar visual intact but page-break clean */
+  .min-h-\[380px\], .min-h-\[440px\] {
+    min-height: 0 !important;
+    height: auto !important;
   }
 }
 
