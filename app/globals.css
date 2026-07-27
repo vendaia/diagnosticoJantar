@@ -156,46 +156,64 @@ body {
     overflow: visible !important;
     background-color: #ffffff !important;
     background: #ffffff !important;
-    color: #18181b !important;
+    color: #1e293b !important; /* slate-800 */
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Text color overrides for high contrast on white paper */
+  /* Standard slate colors for clean reading hierarchy */
   h1, h2, h3, h4, h5, h6, strong, b, .text-white {
-    color: #09090b !important;
+    color: #0f172a !important; /* slate-900 */
   }
   
   p, span, li, div, td, th, .text-zinc-100, .text-zinc-300, .text-zinc-400 {
-    color: #27272a !important;
+    color: #334155 !important; /* slate-700 */
   }
 
-  /* Specific color adjustments for print readability */
-  .text-indigo-400, .text-indigo-300, .text-violet-400 {
-    color: #4f46e5 !important;
+  /* Standard color classes mapping to print-friendly palettes */
+  .text-indigo-400, .text-indigo-300, .text-violet-400, .text-indigo-500 {
+    color: #4f46e5 !important; /* solid indigo-600 */
   }
 
   .text-emerald-400, .text-emerald-500 {
-    color: #15803d !important;
+    color: #16a34a !important; /* solid green-600 */
   }
 
   .text-red-400, .text-red-500 {
-    color: #b91c1c !important;
+    color: #dc2626 !important; /* solid red-600 */
   }
 
   .text-amber-400, .text-amber-500 {
-    color: #b45309 !important;
+    color: #d97706 !important; /* solid amber-600 */
   }
 
-  .bg-indigo-500\/10, .bg-indigo-600\/20 {
-    background-color: #f0fdf4 !important;
-    background: #e0e7ff !important;
-    border-color: #c7d2fe !important;
+  /* Specific backgrounds mapping for highlights */
+  .bg-indigo-500\/10, .bg-indigo-600\/20, .bg-indigo-950\/80 {
+    background-color: #f1f5f9 !important; /* slate-100 */
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important; /* slate-300 */
   }
 
   .bg-emerald-500\/10, .bg-emerald-950\/80 {
-    background-color: #f0fdf4 !important;
-    border-color: #bbf7d0 !important;
+    background-color: #f0fdf4 !important; /* emerald-50 */
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important; /* emerald-200 */
+  }
+
+  .bg-zinc-900 {
+    background-color: #f1f5f9 !important; /* slate-100 progress track */
+    background: #f1f5f9 !important;
+  }
+
+  .bg-gradient-to-r {
+    background-image: none !important;
+    background-color: #4f46e5 !important; /* solid indigo-600 for progress fill */
+    background: #4f46e5 !important;
+  }
+
+  /* Invert white logos so they show up as dark on white page */
+  img {
+    filter: invert(1) !important;
   }
 
   /* Remove flex centering and screen height bounds */
@@ -233,37 +251,45 @@ body {
     width: 100% !important;
   }
 
-  /* Card spacing and print page split optimization - clean light boxes */
+  /* Card spacing and print page split optimization - clean slate boxes */
   .glass-panel {
     page-break-inside: avoid;
     margin-bottom: 2rem !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    border: 1px solid #e4e4e7 !important;
+    background: #f8fafc !important; /* slate-50/50 */
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important; /* slate-200 boundary */
     box-shadow: none !important;
-    color: #18181b !important;
+    color: #1e293b !important;
   }
 
   /* Keep radar visual intact but page-break clean */
   .min-h-\[380px\], .min-h-\[440px\] {
     min-height: 0 !important;
     height: auto !important;
+    background: #ffffff !important;
+    border: none !important;
   }
 
   /* Radar SVG elements override for light background */
-  svg line {
-    stroke: rgba(0, 0, 0, 0.15) !important;
+  svg line[stroke="rgba(255, 255, 255, 0.08)"] {
+    stroke: #cbd5e1 !important; /* slate-300 lines */
+    stroke-width: 1px !important;
   }
-  svg circle {
-    stroke: rgba(0, 0, 0, 0.08) !important;
+  svg circle[stroke="rgba(255, 255, 255, 0.04)"] {
+    stroke: #e2e8f0 !important; /* slate-200 concentric rings */
+    stroke-width: 1px !important;
+  }
+  svg circle[fill="#818cf8"] {
+    fill: #4f46e5 !important; /* indigo-600 core nodes */
   }
   svg text {
-    fill: #18181b !important;
+    fill: #1e293b !important;
+    font-weight: 700 !important;
   }
   svg polygon {
-    fill: rgba(99, 102, 241, 0.12) !important;
+    fill: rgba(79, 70, 229, 0.12) !important;
     stroke: #4f46e5 !important;
-    stroke-width: 2px !important;
+    stroke-width: 2.5px !important;
   }
 }
 
